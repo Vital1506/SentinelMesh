@@ -1,0 +1,83 @@
+{
+  "session": {
+    "session_id": "067dd767-505d-4d26-94e3-bfb31d90a57f",
+    "service": "http",
+    "remote_ip": "127.0.0.1",
+    "remote_port": 57287,
+    "local_port": 8080,
+    "started_at": "2026-09-16T17:08:19.896444+00:00",
+    "ended_at": "2026-09-16T17:08:19.923596+00:00",
+    "bytes_received": 101,
+    "bytes_sent": 236,
+    "credentials": "{}",
+    "command_history": "[]",
+    "message_samples": "[\"GET / HTTP/1.1\\r\\nHost: 127.0.0.1:8080\\r\\nAccept-Encoding: identity\\r\\nUser-Agent: SentinelMeshDemo/1.0\\r\\n\\r\\n\"]",
+    "threat_id": "61c515c66b5650eb5f107f024644faacf0f78bfadd985d88007b6865bddb6ced",
+    "threat_score": 14.674085031440757,
+    "tags": "[]"
+  },
+  "profile": {
+    "threat_id": "61c515c66b5650eb5f107f024644faacf0f78bfadd985d88007b6865bddb6ced",
+    "remote_ip": "127.0.0.1",
+    "tool_guess": "interactive-shell",
+    "command_count": 0,
+    "avg_entropy": 4.891361677146919,
+    "cadence_ms": 0.0,
+    "risk_score": 14.674085031440757,
+    "first_seen": "2026-09-16T17:08:19.896444+00:00",
+    "last_seen": "2026-09-16T17:08:19.923596+00:00",
+    "cluster_id": null,
+    "geo": null,
+    "labels": "[\"interactive-shell\"]"
+  },
+  "hits": [],
+  "stix_bundle": {
+    "type": "bundle",
+    "id": "bundle--61c515c66b5650eb5f107f024644faacf0f78bfadd985d88007b6865bddb6ced",
+    "objects": [
+      {
+        "type": "identity",
+        "spec_version": "2.1",
+        "id": "identity--sentinelmesh",
+        "created": "2026-09-16T17:08:19.896444+00:00",
+        "modified": "2026-09-16T17:08:19.896444+00:00",
+        "name": "SentinelMesh",
+        "identity_class": "system"
+      },
+      {
+        "type": "ipv4-addr",
+        "spec_version": "2.1",
+        "id": "ipv4-addr--127-0-0-1",
+        "value": "127.0.0.1"
+      },
+      {
+        "type": "indicator",
+        "spec_version": "2.1",
+        "id": "indicator--61c515c66b5650eb5f107f024644faac",
+        "created": "2026-09-16T17:08:19.896444+00:00",
+        "modified": "2026-09-16T17:08:19.896444+00:00",
+        "name": "SentinelMesh indicator 61c515c66b56",
+        "pattern_type": "stix",
+        "pattern": "[ipv4-addr:value = '127.0.0.1']",
+        "confidence": 14,
+        "labels": [
+          "interactive-shell"
+        ]
+      },
+      {
+        "type": "observed-data",
+        "spec_version": "2.1",
+        "id": "observed-data--50eb5f107f024644faacf0f78bfadd98",
+        "created_by_ref": "identity--sentinelmesh",
+        "created": "2026-09-16T17:08:19.896444+00:00",
+        "modified": "2026-09-16T17:08:19.896444+00:00",
+        "first_observed": "2026-09-16T17:08:19.896444+00:00",
+        "last_observed": "2026-09-16T17:08:19.923596+00:00",
+        "number_observed": 1,
+        "object_refs": [
+          "ipv4-addr--127-0-0-1"
+        ]
+      }
+    ]
+  }
+}

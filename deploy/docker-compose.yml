@@ -1,0 +1,30 @@
+services:
+  sentinelmesh:
+    container_name: sentinelmesh
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    env_file:
+      - ../.env
+    environment:
+      SENTINELMESH_LISTEN_HOST: 0.0.0.0
+      SENTINELMESH_DASHBOARD_HOST: 0.0.0.0
+      SENTINELMESH_ENVIRONMENT: docker
+      SENTINELMESH_INSTANCE_NAME: SentinelMesh // Docker Node
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+      - "2121:2121"
+      - "2525:2525"
+      - "2222:2222"
+    volumes:
+      - ../data:/app/data
+      - ../reports:/app/reports
+      - ../models:/app/models
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/healthz', timeout=3).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+    restart: unless-stopped

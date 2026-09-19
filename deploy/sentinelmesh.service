@@ -1,0 +1,13 @@
+[Unit]
+Description=SentinelMesh adaptive deception platform
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/sentinelmesh
+ExecStart=/opt/sentinelmesh/.venv/bin/python -m sentinelmesh serve
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

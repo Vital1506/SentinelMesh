@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SentinelMesh Console</title>
+    <meta http-equiv="refresh" content="{{ refresh_seconds }}" />
+    <style>
+      :root {
+        --ink-950: #091018;
+        --ink-900: #111a25;
+        --ink-800: #182637;
+        --line: rgba(208, 221, 240, 0.12);
+        --line-strong: rgba(208, 221, 240, 0.22);
+        --card: rgba(10, 18, 28, 0.78);
+        --card-strong: rgba(16, 27, 40, 0.92);
+        --text: #eaf1f7;
+        --muted: #93a7ba;
+        --teal: #4fd1b8;
+        --cyan: #7bdff2;
+        --amber: #f3b562;
+        --red: #ff7a6f;
+        --green: #68d391;
+        --shadow: 0 26px 60px rgba(0, 0, 0, 0.32);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Bahnschrift", "Trebuchet MS", "Lucida Sans", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 8% 10%, rgba(123, 223, 242, 0.14), transparent 28%),
+          radial-gradient(circle at 88% 12%, rgba(243, 181, 98, 0.16), transparent 24%),
+          linear-gradient(145deg, #071019 0%, #0d1823 46%, #131f2f 100%);
+        min-height: 100vh;
+      }
+
+      .shell {
+        width: min(1440px, calc(100vw - 32px));
+        margin: 22px auto 28px;
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero,
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        background: var(--card);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 28px;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(115deg, rgba(79, 209, 184, 0.08), transparent 34%),
+          linear-gradient(20deg, rgba(243, 181, 98, 0.06), transparent 38%);
+        pointer-events: none;
+      }
+
+      .hero-grid {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) minmax(310px, 0.75fr);
+        gap: 20px;
+      }
+
+      .eyebrow,
+      .overline {
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        font-size: 0.76rem;
+        color: var(--muted);
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        line-height: 0.94;
+        letter-spacing: 0.02em;
+      }
+
+      .hero p {
+        max-width: 68ch;
+        color: #c9d6e4;
+        margin: 0;
+        line-height: 1.6;
+      }
+
+      .hero-meta,
+      .hero-actions,
+      .stat-strip,
+      .two-column,
+      .three-column,
+      .service-list,
+      .command-list,
+      .event-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .hero-meta {
+        grid-template-columns: repeat(auto-fit, minmax(140px, max-content));
+        align-items: center;
+        margin-top: 14px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line-strong);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font-size: 0.88rem;
+      }
+
+      .chip strong {
+        color: white;
+      }
+
+      .mission-card {
+        display: grid;
+        gap: 14px;
+        padding: 20px;
+        border-radius: 22px;
+        background: var(--card-strong);
+        border: 1px solid var(--line);
+      }
+
+      .gauge {
+        --angle: 180deg;
+        width: 124px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle closest-side, rgba(10, 18, 28, 1) 67%, transparent 68% 100%),
+          conic-gradient(var(--teal) 0deg, var(--cyan) var(--angle), rgba(255, 255, 255, 0.08) var(--angle) 360deg);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      }
+
+      .gauge span {
+        font-size: 1.8rem;
+        font-weight: 700;
+      }
+
+      .gauge small {
+        display: block;
+        text-align: center;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.62rem;
+      }
+
+      .mission-stack {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .stat-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-top: 18px;
+      }
+
+      .stat-card {
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--line);
+      }
+
+      .label {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.72rem;
+      }
+
+      .value {
+        margin-top: 10px;
+        font-size: clamp(1.5rem, 4vw, 2.2rem);
+      }
+
+      .panel {
+        padding: 20px;
+      }
+
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+
+      .panel-head p,
+      .tiny,
+      .muted {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .two-column {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+
+      .three-column {
+        grid-template-columns: 1.1fr 1fr 1fr;
+      }
+
+      .service-row,
+      .command-row,
+      .signal-row {
+        display: grid;
+        gap: 8px;
+      }
+
+      .service-row {
+        grid-template-columns: 92px 84px minmax(0, 1fr) 70px;
+        align-items: center;
+      }
+
+      .signal-row {
+        grid-template-columns: 90px minmax(0, 1fr) 52px;
+        align-items: center;
+      }
+
+      .command-row {
+        grid-template-columns: minmax(0, 1fr) 46px;
+        align-items: center;
+      }
+
+      .bar {
+        position: relative;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .bar > span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: var(--fill, 0%);
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--teal), var(--cyan));
+      }
+
+      .bar.warn > span {
+        background: linear-gradient(90deg, var(--amber), #ffd089);
+      }
+
+      .bar.critical > span {
+        background: linear-gradient(90deg, var(--red), #ff9671);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        border: 1px solid transparent;
+      }
+
+      .badge.success,
+      .tone-success {
+        color: var(--green);
+      }
+
+      .badge.success {
+        background: rgba(104, 211, 145, 0.12);
+        border-color: rgba(104, 211, 145, 0.24);
+      }
+
+      .badge.warn,
+      .tone-warn {
+        color: var(--amber);
+      }
+
+      .badge.warn {
+        background: rgba(243, 181, 98, 0.12);
+        border-color: rgba(243, 181, 98, 0.26);
+      }
+
+      .badge.danger,
+      .tone-danger {
+        color: var(--red);
+      }
+
+      .badge.danger {
+        background: rgba(255, 122, 111, 0.12);
+        border-color: rgba(255, 122, 111, 0.24);
+      }
+
+      .badge.info {
+        color: var(--cyan);
+        background: rgba(123, 223, 242, 0.12);
+        border-color: rgba(123, 223, 242, 0.24);
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .metric-card {
+        padding: 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--line);
+      }
+
+      .metric-card strong {
+        display: block;
+        font-size: 1.4rem;
+        margin-top: 8px;
+      }
+
+      .command-row code,
+      .mono {
+        font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+      }
+
+      .table-shell {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 12px 0;
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+        font-size: 0.92rem;
+      }
+
+      th {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.72rem;
+      }
+
+      .status-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--green);
+        display: inline-block;
+        margin-right: 8px;
+      }
+
+      .status-dot.warn {
+        background: var(--amber);
+      }
+
+      .status-dot.danger {
+        background: var(--red);
+      }
+
+      .labels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .labels span {
+        display: inline-flex;
+        padding: 4px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #d5deea;
+        font-size: 0.78rem;
+      }
+
+      .event-list {
+        gap: 12px;
+      }
+
+      .event-item {
+        display: grid;
+        grid-template-columns: 132px 150px minmax(0, 1fr);
+        gap: 14px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .event-item:last-child {
+        border-bottom: none;
+      }
+
+      .payload {
+        color: #ccd8e5;
+        word-break: break-word;
+      }
+
+      .notes {
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(243, 181, 98, 0.22);
+        background: rgba(243, 181, 98, 0.08);
+      }
+
+      .notes ul {
+        margin: 10px 0 0 18px;
+        color: #e4d1b1;
+      }
+
+      @media (max-width: 1080px) {
+        .hero-grid,
+        .two-column,
+        .three-column,
+        .stat-strip,
+        .metric-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .service-row,
+        .signal-row,
+        .command-row,
+        .event-item {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow">Adaptive Deception Command Surface</div>
+            <h1>SentinelMesh</h1>
+            <p>
+              A live defensive deception console that captures hostile sessions, synthesizes believable responses,
+              scores behavior, and turns every interaction into analyst-ready telemetry.
+            </p>
+            <div class="hero-meta">
+              <div class="chip"><strong>Instance</strong> {{ instance_name }}</div>
+              <div class="chip"><strong>Environment</strong> {{ environment_name }}</div>
+              <div class="chip"><strong>Refresh</strong> {{ refresh_seconds }}s</div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <div class="mission-card">
+              <div class="overline">Deployment Posture</div>
+              <div class="mission-stack">
+                <div class="gauge" style="--angle: {{ posture.readiness_angle }}deg">
+                  <div>
+                    <span>{{ posture.readiness_score }}</span>
+                    <small>Readiness</small>
+                  </div>
+                </div>
+                <div>
+                  <h3>{{ posture.coverage_label }}</h3>
+                  <p class="tiny">{{ posture.exposure_label }}</p>
+                  <p class="tiny">Reports path: <span class="mono">{{ reports_dir }}</span></p>
+                </div>
+              </div>
+              <div class="bar" style="--fill: {{ posture.coverage_percentage }}%">
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-strip">
+          <div class="stat-card">
+            <div class="label">Active Sessions</div>
+            <div class="value">{{ active_sessions }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Tracked Profiles</div>
+            <div class="value">{{ metrics.total_profiles }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Reports Generated</div>
+            <div class="value">{{ metrics.report_count }}</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Average Risk</div>
+            <div class="value">{{ traffic_snapshot.avg_risk }}</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="two-column">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Service Mesh</div>
+              <h2>Capture Surface</h2>
+            </div>
+            <p>{{ metrics.total_sessions }} total sessions from {{ metrics.distinct_sources }} sources</p>
+          </div>
+          <div class="service-list">
+            {% for name, details in services.items() %}
+            <div class="service-row">
+              <div class="badge {% if details.enabled %}success{% else %}warn{% endif %}">{{ name }}</div>
+              <div class="mono">
+                {% if details.host %}
+                {{ details.host }}:{{ details.port }}
+                {% else %}
+                port {{ details.port }}
+                {% endif %}
+              </div>
+              <div class="bar {% if not details.enabled %}warn{% endif %}" style="--fill: {% for entry in metrics.service_breakdown %}{% if entry.service == name %}{{ entry.intensity }}{% endif %}{% endfor %}%">
+                <span></span>
+              </div>
+              <div class="muted">
+                {% set service_total = namespace(value=0) %}
+                {% for entry in metrics.service_breakdown %}
+                  {% if entry.service == name %}
+                    {% set service_total.value = entry.total %}
+                  {% endif %}
+                {% endfor %}
+                {{ service_total.value }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Threat Intel Readiness</div>
+              <h2>External Correlation Coverage</h2>
+            </div>
+            <span class="badge {% if provider_coverage.configured %}success{% else %}warn{% endif %}">
+              {{ provider_coverage.percentage }}% configured
+            </span>
+          </div>
+          <div class="service-list">
+            {% for provider, enabled in providers.items() %}
+            <div class="service-row">
+              <div>{{ provider }}</div>
+              <div class="{% if enabled %}tone-success{% else %}tone-warn{% endif %}">
+                {{ "Ready" if enabled else "Key missing" }}
+              </div>
+              <div class="bar {% if not enabled %}warn{% endif %}" style="--fill: {{ 100 if enabled else 18 }}%">
+                <span></span>
+              </div>
+              <div>{{ "ON" if enabled else "OFF" }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% if warnings %}
+          <div class="notes">
+            <strong>Hardening Notes</strong>
+            <ul>
+              {% for warning in warnings %}
+              <li>{{ warning }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="three-column">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Risk Composition</div>
+              <h2>Session Severity</h2>
+            </div>
+            <p>{{ metrics.high_risk_sessions + metrics.critical_sessions }} elevated sessions</p>
+          </div>
+          <div class="service-list">
+            {% for band in risk_bands %}
+            <div class="signal-row">
+              <div>{{ band.label }}</div>
+              <div class="bar {% if band.tone == 'critical' %}critical{% elif band.tone == 'high' or band.tone == 'medium' %}warn{% endif %}" style="--fill: {{ band.percentage }}%">
+                <span></span>
+              </div>
+              <div>{{ band.value }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="overline">Bytes In</div>
+              <strong>{{ traffic_snapshot.received }}</strong>
+            </div>
+            <div class="metric-card">
+              <div class="overline">Bytes Out</div>
+              <strong>{{ traffic_snapshot.sent }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Command Spotlight</div>
+              <h2>Observed Payload Intent</h2>
+            </div>
+            <p>Top commands across captured sessions</p>
+          </div>
+          <div class="command-list">
+            {% for item in metrics.top_commands %}
+            <div class="command-row">
+              <div>
+                <code>{{ item.command }}</code>
+                <div class="bar" style="--fill: {{ item.intensity }}%; margin-top: 8px;">
+                  <span></span>
+                </div>
+              </div>
+              <div>{{ item.total }}</div>
+            </div>
+            {% else %}
+            <p class="muted">No commands observed yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Top Source IPs</div>
+              <h2>Ingress Hotspots</h2>
+            </div>
+            <p>Most frequent remote addresses</p>
+          </div>
+          <div class="service-list">
+            {% for entry in metrics.top_sources %}
+            <div class="signal-row">
+              <div class="mono">{{ entry.remote_ip }}</div>
+              <div class="bar" style="--fill: {{ entry.intensity }}%">
+                <span></span>
+              </div>
+              <div>{{ entry.total }}</div>
+            </div>
+            {% else %}
+            <p class="muted">No source IPs recorded yet.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section class="two-column">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Live Engagements</div>
+              <h2>Recent Sessions</h2>
+            </div>
+            <p>Latest deceptive interactions</p>
+          </div>
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Service</th>
+                  <th>Source</th>
+                  <th>Risk</th>
+                  <th>Commands</th>
+                  <th>Threat ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for session in sessions %}
+                <tr>
+                  <td>
+                    <span class="status-dot {% if session.threat_score >= 85 %}danger{% elif session.threat_score >= 40 %}warn{% endif %}"></span>
+                    {{ session.service }}
+                  </td>
+                  <td class="mono">{{ session.remote_ip }}:{{ session.remote_port }}</td>
+                  <td class="{% if session.threat_score >= 85 %}tone-danger{% elif session.threat_score >= 40 %}tone-warn{% else %}tone-success{% endif %}">
+                    {{ "%.1f"|format(session.threat_score) }}
+                  </td>
+                  <td>{{ session.command_history|length }}</td>
+                  <td class="mono">
+                    {% if session.threat_id %}
+                    {{ session.threat_id[:18] }}…
+                    {% else %}
+                    pending
+                    {% endif %}
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="5" class="muted">No sessions captured yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="overline">Priority Queue</div>
+              <h2>Highest-Risk Profiles</h2>
+            </div>
+            <p>Profiles sorted by behavioral risk</p>
+          </div>
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>IP</th>
+                  <th>Tool Guess</th>
+                  <th>Risk</th>
+                  <th>Labels</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for profile in metrics.top_profiles %}
+                <tr>
+                  <td class="mono">{{ profile.remote_ip }}</td>
+                  <td>{{ profile.tool_guess }}</td>
+                  <td class="{% if profile.risk_score >= 85 %}tone-danger{% elif profile.risk_score >= 40 %}tone-warn{% else %}tone-success{% endif %}">
+                    {{ "%.1f"|format(profile.risk_score) }}
+                  </td>
+                  <td>
+                    <div class="labels">
+                      {% for label in profile.labels %}
+                      <span>{{ label }}</span>
+                      {% endfor %}
+                    </div>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="4" class="muted">No profiles generated yet.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="overline">Telemetry Timeline</div>
+            <h2>Event Feed</h2>
+          </div>
+          <p>Live events from the deception pipeline</p>
+        </div>
+        <div class="event-list">
+          {% for event in events %}
+          <div class="event-item">
+            <div class="mono muted">{{ event.occurred_at }}</div>
+            <div>
+              <span class="badge {% if event.tone == 'success' %}success{% elif event.tone == 'warn' %}warn{% elif event.tone == 'accent' or event.tone == 'info' %}info{% else %}danger{% endif %}">
+                {{ event.event_type }}
+              </span>
+              <div class="tiny">{{ event.session_id or "system" }}</div>
+            </div>
+            <div class="payload mono">{{ event.payload_text }}</div>
+          </div>
+          {% else %}
+          <p class="muted">No telemetry events yet.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+  </body>
+  </html>
