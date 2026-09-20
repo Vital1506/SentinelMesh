@@ -6,7 +6,7 @@ import json
 import logging
 import threading
 from pathlib import Path
-from typing import Any
+
 from sentinelmesh.config import Settings
 from sentinelmesh.deception_ai import AdaptiveDeceptionEngine, extract_sequences
 from sentinelmesh.doctor import print_report, report_as_json
@@ -103,10 +103,7 @@ def main() -> None:
         try:
             asyncio.run(honeypot.serve_forever())
         finally:
-            try:
-                await honeypot.shutdown()
-            except Exception:
-                logging.exception("SentinelMesh shutdown had errors")
+            honeypot.shutdown_sync()
         return
 
     if args.command == "honeypot":
@@ -119,10 +116,7 @@ def main() -> None:
         try:
             asyncio.run(honeypot.serve_forever())
         finally:
-            try:
-                await honeypot.shutdown()
-            except Exception:
-                logging.exception("SentinelMesh shutdown had errors")
+            honeypot.shutdown_sync()
         return
 
     if args.command == "dashboard":

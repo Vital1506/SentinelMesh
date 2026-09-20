@@ -5,7 +5,7 @@ import math
 from collections import Counter
 from dataclasses import replace
 
-from sentinelmesh.models import AttackSession, AttackerProfile, ObservedCommand, utc_now
+from sentinelmesh.models import AttackerProfile, AttackSession, ObservedCommand, utc_now
 
 
 def shannon_entropy(values: list[str]) -> float:
@@ -109,7 +109,7 @@ class AttackProfiler:
             score += 20.0
         if any("chmod" in command or "./" in command or ".sh" in command for command in commands):
             score += 15.0
-        if any("/etc/passwd" in command or "shadow" in command or "\.env" in command for command in commands):
+        if any("/etc/passwd" in command or "shadow" in command or ".env" in command for command in commands):
             score += 15.0
         if session.service == "ssh":
             score += 8.0
@@ -121,7 +121,7 @@ class AttackProfiler:
         labels = [tool_guess]
         if any("wget" in command or "curl" in command or "tftp" in command for command in commands):
             labels.append("download-attempt")
-        if any("cat /etc/passwd" in command or "shadow" in command or "\.env" in command for command in commands):
+        if any("cat /etc/passwd" in command or "shadow" in command or ".env" in command for command in commands):
             labels.append("credential-discovery")
         if any("chmod" in command or "./" in command or ".sh" in command for command in commands):
             labels.append("execution-attempt")

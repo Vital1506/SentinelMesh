@@ -2,18 +2,17 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import StrEnum
-from secrets import token_hex
 from typing import Any
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def to_iso(moment: datetime) -> str:
-    return moment.astimezone(timezone.utc).isoformat()
+    return moment.astimezone(UTC).isoformat()
 
 
 def from_iso(raw: str) -> datetime:
@@ -93,7 +92,7 @@ class AttackSession:
         }
 
     @classmethod
-    def from_record(cls, row: dict[str, Any]) -> "AttackSession":
+    def from_record(cls, row: dict[str, Any]) -> AttackSession:
         ended_at = row["ended_at"]
         return cls(
             session_id=row["session_id"],
@@ -146,7 +145,7 @@ class AttackerProfile:
         }
 
     @classmethod
-    def from_record(cls, row: dict[str, Any]) -> "AttackerProfile":
+    def from_record(cls, row: dict[str, Any]) -> AttackerProfile:
         return cls(
             threat_id=row["threat_id"],
             remote_ip=row["remote_ip"],

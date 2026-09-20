@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -12,8 +12,8 @@ def classify_age(started_at: Any) -> str:
     if not isinstance(started_at, datetime):
         return "unknown"
 
-    normalized = started_at.astimezone(timezone.utc)
-    now = datetime.now(timezone.utc)
+    normalized = started_at.astimezone(UTC)
+    now = datetime.now(UTC)
     delta = now - normalized
 
     seconds = delta.total_seconds()

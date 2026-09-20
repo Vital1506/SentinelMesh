@@ -6,9 +6,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-from sentinelmesh.models import utc_now
-
-
 CREDENTIAL_LIKE_PATTERN = re.compile(
     r"(?i)(password|passwd|pwd|secret|token|apikey|api-key|auth)[=:\s]+(.+)"
 )

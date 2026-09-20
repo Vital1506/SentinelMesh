@@ -7,7 +7,6 @@ import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import DefaultDict
 
 
 def _tokenize(command: str) -> list[str]:
@@ -26,7 +25,7 @@ class SequencePredictor:
 
     def __init__(self, model_path: Path) -> None:
         self.model_path = model_path
-        self.transition_counts: DefaultDict[str, Counter[str]] = defaultdict(Counter)
+        self.transition_counts: defaultdict[str, Counter[str]] = defaultdict(Counter)
         self.default_counts: Counter[str] = Counter()
         if self.model_path.exists():
             self.load()

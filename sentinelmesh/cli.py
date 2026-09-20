@@ -175,16 +175,6 @@ def _run_doctor(settings: Settings) -> None:
 
 
 def _rotate_keys(settings: Settings, *, retain_reports: bool) -> None:
-    from sentinelmesh.honeypot_engine import _ensure_host_key
-
-    try:
-        import asyncssh
-    except Exception:
-        asyncssh = None
-
-    if asyncssh is not None:
-        _ensure_host_key(asyncssh)
-
     if settings.host_key_path.exists():
         print(f"host key present at {settings.host_key_path}")
     else:
@@ -198,7 +188,10 @@ def _generate_keys(settings: Settings) -> None:
         print(f"cannot generate keys: asyncssh unavailable ({exc})")
         sys.exit(1)
 
-    from sentinelmesh.honeypot_engine import _ensure_host_key
-
-    _ensure_host_key(asyncssh)
-    print(f"host key generated at {settings.host_key_path}")
+    try:
+        key = asyncssh.generate_private_key("ssh-rsa")
+        key.write_private_key(str(settings.host_key_path))
+        print(f"host key generated at {settings.host_key_path}")
+    except Exception as exc:
+        print(f"failed to generate host key: {exc}")
+        sys.exit(1)

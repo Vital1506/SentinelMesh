@@ -6,7 +6,13 @@ import threading
 from pathlib import Path
 from typing import Any
 
-from sentinelmesh.models import AttackSession, AttackerProfile, EventRecord, EventType, ObservedCommand
+from sentinelmesh.models import (
+    AttackerProfile,
+    AttackSession,
+    EventRecord,
+    EventType,
+    ObservedCommand,
+)
 
 
 class EventStore:

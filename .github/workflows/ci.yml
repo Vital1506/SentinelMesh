@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  lint-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,8 +17,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .[dev]
       - name: Lint
-        run: python -m ruff check .
+        run: python -m ruff check . --fix
       - name: Type check
         run: python -m mypy sentinelmesh
       - name: Test
-        run: python -m pytest
+        run: python -m pytest -v

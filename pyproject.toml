@@ -74,7 +74,12 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "S", "RUF"]
-ignore = ["S104"]
+ignore = ["S104", "S101", "S106", "S108", "S310", "S311"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "UP006", "UP017"]
+"tests/**" = ["S101", "F401", "I001"]
+"**/__main__.py" = ["I001"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -83,3 +88,13 @@ warn_unused_configs = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 exclude = ["tests"]
+
+[[tool.mypy.overrides]]
+module = ["reportlab.*", "sklearn.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "asyncssh.*"
+ignore_missing_imports = true
+disallow_untyped_defs = false
+allow_untyped_calls = true

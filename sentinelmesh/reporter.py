@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from sentinelmesh.models import AttackSession, AttackerProfile, ThreatIntelHit
+from sentinelmesh.models import AttackerProfile, AttackSession, ThreatIntelHit
 
 
 class ReportGenerator:

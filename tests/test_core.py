@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import timezone
+from datetime import timezone, UTC
 
 from sentinelmesh.core import (
     export_filename_stem,
@@ -48,7 +48,7 @@ def test_safe_export_payload_scrubs_credentials():
     creds = payload["credentials"]
     assert "SuperSecret123!" not in creds
     assert creds.startswith('{"username": "a')
-    assert creds.endswith('"password": "S...3!"}')
+    assert creds.endswith('\"password\": \"S...3!\"}')
 
 
 def test_safe_export_payload_scrubs_event_payloads():
@@ -91,22 +91,11 @@ def test_export_filename_stem_is_deterministic():
     now = utc_now()
     stem = export_filename_stem("session-1", "ssh", now)
     assert stem.startswith(now.strftime("%Y%m%dT"))
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
-    assert stem.endswith("_ssh_session-1_")
+    # Stem format: {timestamp}_{service}_{session_id}_{sha256_digest}
+    parts = stem.split("_")
+    assert parts[1] == "ssh"
+    assert parts[2] == "session-1"
+    assert len(parts[3]) == 64  # SHA-256 hex digest
 
 
 def test_write_json_export_creates_file(tmp_path):
@@ -136,7 +125,7 @@ def test_prune_records_older_than_removes_sessions(tmp_path):
     store = EventStore(tmp_path / "store.db")
     now = utc_now()
     old = now.timestamp() - 999999
-    old_iso = (now.fromtimestamp(old, tz=timezone.utc)).isoformat()
+    old_iso = (now.fromtimestamp(old, tz=UTC)).isoformat()
     session = AttackSession(
         session_id="s1",
         service="dummy",

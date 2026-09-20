@@ -4,13 +4,13 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from sentinelmesh.config import Settings
-from sentinelmesh.models import AttackSession, AttackerProfile, ThreatIntelHit
+from sentinelmesh.models import AttackerProfile, AttackSession, ThreatIntelHit
 
 
 @dataclass(slots=True)
@@ -54,8 +54,8 @@ class ThreatIntelCorrelator:
         profile: AttackerProfile,
         hits: list[ThreatIntelHit],
     ) -> dict[str, Any]:
-        observed_at = session.started_at.astimezone(timezone.utc).isoformat()
-        observed_end = (session.ended_at or session.started_at).astimezone(timezone.utc).isoformat()
+        observed_at = session.started_at.astimezone(UTC).isoformat()
+        observed_end = (session.ended_at or session.started_at).astimezone(UTC).isoformat()
         identity_id = "identity--sentinelmesh"
         ipv4_id = f"ipv4-addr--{profile.remote_ip.replace('.', '-')}"
         indicator_id = f"indicator--{profile.threat_id[:32]}"

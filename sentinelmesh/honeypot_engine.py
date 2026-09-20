@@ -4,7 +4,6 @@ import asyncio
 import logging
 import uuid
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from sentinelmesh.config import Settings
@@ -74,7 +73,14 @@ class HoneypotEngine:
         if self.settings.enable_ssh:
             await self._start_ssh()
 
-        bound = [socket.getsockname() for server in self._servers for socket in server.sockets or []]
+        bound: list[tuple[str, int]] = []
+        for server in self._servers:
+            if hasattr(server, "sockets"):
+                for sock in server.sockets or []:
+                    try:
+                        bound.append(sock.getsockname())
+                    except Exception:
+                        pass
         self._logger.info(
             "SentinelMesh honeypot services listening on %s", bound
         )
@@ -83,32 +89,47 @@ class HoneypotEngine:
         await self.start()
         await asyncio.gather(*(server.serve_forever() for server in self._servers))
 
-    async def shutdown(self) -> None:
-        for session_id in list(self.active_sessions):
-            await self._close_session(session_id)
-        for server in self._servers:
+    def shutdown_sync(self) -> None:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            for session_id in list(self.active_sessions):
+                try:
+                    loop.run_until_complete(self._close_session(session_id))
+                except Exception:
+                    self._logger.exception("error closing session %s", session_id)
+            for server in self._servers:
+                try:
+                    server.close()
+                except Exception:
+                    self._logger.exception("error closing server during shutdown")
             try:
-                server.close()
+                loop.run_until_complete(asyncio.gather(
+                    *(server.wait_closed() for server in self._servers),
+                    return_exceptions=True,
+                ))
             except Exception:
-                self._logger.exception("error closing server during shutdown")
-        await asyncio.gather(
-            *(server.wait_closed() for server in self._servers),
-            return_exceptions=True,
-        )
+                pass
+        finally:
+            try:
+                loop.close()
+            except Exception:
+                pass
 
     async def _start_ssh(self) -> None:
         try:
             import asyncssh
 
-            self._ensure_host_key(asyncssh)
+            await self._ensure_host_key_async(asyncssh)
 
             class SentinelSSHServer(asyncssh.SSHServer):
                 def __init__(self, engine: HoneypotEngine) -> None:
                     self.engine = engine
+                    self.connection: asyncssh.SSHServerConnection | None = None
 
                 def connection_made(self, connection: asyncssh.SSHServerConnection) -> None:
-                    peer_ip, peer_port = connection.get_extra_info("peername")[:2]
                     self.connection = connection
+                    peer_ip, peer_port = connection.get_extra_info("peername")[:2]
                     self.peer_ip = str(peer_ip)
                     self.peer_port = int(peer_port)
 
@@ -120,13 +141,11 @@ class HoneypotEngine:
                     return True
 
                 def validate_password(self, username: str, password: str) -> bool:
-                    # Accept and record any password so the decoy stays low-friction.
-                    # Do not log cleartext secrets; store only enough for profiling.
                     self.validated_username = username
                     self.validated_password = password
                     return True
 
-            async def process_handler(process: "asyncssh.SSHServerProcess[Any]") -> None:
+            async def process_handler(process: asyncssh.SSHServerProcess[Any]) -> None:
                 connection = process.get_extra_info("connection")
                 server = connection.get_owner() if connection is not None else None
                 session_id, prompt = await self._open_session(
@@ -196,13 +215,13 @@ class HoneypotEngine:
                 )
             )
 
-    def _ensure_host_key(self, asyncssh_module: object) -> None:
+    async def _ensure_host_key_async(self, asyncssh_module: Any) -> None:
         if self.settings.host_key_path.exists():
             return
         try:
             key = asyncssh_module.generate_private_key("ssh-rsa")
             key.write_private_key(str(self.settings.host_key_path))
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             LOGGER.warning("failed to generate SSH host key: %s", exc)
             raise
 
@@ -589,7 +608,7 @@ class HoneypotEngine:
         self.store.upsert_session(session)
 
     async def _write_line(self, writer: asyncio.StreamWriter, line: str) -> None:
-        payload = f"{line}\r\n".encode("utf-8")
+        payload = f"{line}\r\n".encode()
         writer.write(payload)
         await writer.drain()
 

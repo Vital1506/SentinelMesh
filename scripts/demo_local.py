@@ -92,7 +92,7 @@ def run_real_ssh(host: str, port: int) -> None:
             host,
             port=port,
             username="demo",
-            password="demo",  # noqa: S106 - intentional throwaway demo credential
+            password="demo",
             known_hosts=None,
         ) as connection:
             process = await connection.create_process()

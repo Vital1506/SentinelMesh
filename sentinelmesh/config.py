@@ -33,7 +33,7 @@ def _load_dotenv(path: Path) -> None:
 def _require_nonzero_env(name: str) -> str:
     value = os.getenv(name, "").strip()
     if not value:
-        raise EnvironmentError(
+        raise OSError(
             f"Missing required environment variable: {name}"
         )
     return value
@@ -73,7 +73,7 @@ class Settings:
     require_telemetry_auth: bool
 
     @classmethod
-    def from_env(cls) -> "Settings":
+    def from_env(cls) -> Settings:
         base_dir = Path.cwd()
         _load_dotenv(base_dir / ".env")
 
