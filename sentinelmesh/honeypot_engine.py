@@ -79,8 +79,11 @@ class HoneypotEngine:
                 for sock in server.sockets or []:
                     try:
                         bound.append(sock.getsockname())
-                    except Exception:
-                        pass
+                    except OSError as exc:
+                        self._logger.debug(
+                            "Unable to determine bound address for socket: %s",
+                            exc,
+                        )
         self._logger.info(
             "SentinelMesh honeypot services listening on %s", bound
         )
@@ -104,17 +107,25 @@ class HoneypotEngine:
                 except Exception:
                     self._logger.exception("error closing server during shutdown")
             try:
-                loop.run_until_complete(asyncio.gather(
-                    *(server.wait_closed() for server in self._servers),
-                    return_exceptions=True,
-                ))
+                results = loop.run_until_complete(
+                    asyncio.gather(
+                        *(server.wait_closed() for server in self._servers),
+                        return_exceptions=True,
+                    )
+                )
+                for result in results:
+                    if isinstance(result, Exception):
+                        self._logger.warning(
+                            "error waiting for server shutdown: %s",
+                            result,
+                        )
             except Exception:
-                pass
+                self._logger.exception("error waiting for servers to close")
         finally:
             try:
                 loop.close()
             except Exception:
-                pass
+                self._logger.exception("error closing shutdown event loop")
 
     async def _start_ssh(self) -> None:
         try:
