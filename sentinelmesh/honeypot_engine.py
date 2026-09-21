@@ -40,7 +40,7 @@ class HoneypotEngine:
         self.reporter = reporter
         self.deception_engine = deception_engine
         self.active_sessions: dict[str, SessionContext] = {}
-        self._servers: list[asyncio.AbstractServer] = []
+        self._servers: list[Any] = []
         self._logger = logging.getLogger(
             f"{__name__}.{self.__class__.__name__}"
         )
