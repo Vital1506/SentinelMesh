@@ -95,15 +95,7 @@ def main() -> None:
     if args.command == "serve":
         _, store, _, honeypot = build_runtime()
         _run_dashboard_thread(store, settings)
-        try:
-            honeypot.start()
-        except Exception:
-            logging.exception("SentinelMesh service start failed")
-            raise
-        try:
-            asyncio.run(honeypot.serve_forever())
-        finally:
-            honeypot.shutdown_sync()
+        asyncio.run(_run_honeypot(honeypot))
         return
 
     if args.command == "honeypot":
@@ -160,6 +152,17 @@ def main() -> None:
 
     _run_cli_command(args, settings)
 
+
+
+async def _run_honeypot(honeypot: HoneypotEngine) -> None:
+    try:
+        await honeypot.start()
+        await honeypot.serve_forever()
+    except Exception:
+        logging.exception("SentinelMesh service start failed")
+        raise
+    finally:
+        honeypot.shutdown_sync()
 
 def _add_cli_subcommands(parser: argparse.ArgumentParser) -> None:
     from sentinelmesh.cli import add_subcommands
