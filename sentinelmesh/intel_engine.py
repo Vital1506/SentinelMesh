@@ -5,7 +5,7 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import UTC
-from typing import Any
+from typing import Any, cast
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -211,6 +211,7 @@ class ThreatIntelCorrelator:
                 raw = response.read()
                 if not raw:
                     return {}
-                return json.loads(raw.decode("utf-8"))
+                payload = json.loads(raw.decode("utf-8"))
+                return cast(dict[str, Any], payload) if isinstance(payload, dict) else {}
         except (HTTPError, URLError, TimeoutError, ValueError):
             return {}
