@@ -99,16 +99,8 @@ def main() -> None:
         return
 
     if args.command == "honeypot":
-        _, store, _, honeypot = build_runtime()
-        try:
-            honeypot.start()
-        except Exception:
-            logging.exception("SentinelMesh service start failed")
-            raise
-        try:
-            asyncio.run(honeypot.serve_forever())
-        finally:
-            honeypot.shutdown_sync()
+        _, _, _, honeypot = build_runtime()
+        asyncio.run(_run_honeypot(honeypot))
         return
 
     if args.command == "dashboard":
