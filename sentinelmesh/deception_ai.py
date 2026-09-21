@@ -85,7 +85,10 @@ class AdaptiveDeceptionEngine:
         self.session_states: dict[str, ShellState] = {}
         self._random = random.Random(1337)
         self._filesystem = {
-            "/": ["bin", "boot", "dev", "etc", "home", "lib", "media", "mnt", "opt", "root", "run", "sbin", "srv", "sys", "tmp", "usr", "var"],
+            "/": [
+                "bin", "boot", "dev", "etc", "home", "lib", "media", "mnt",
+                "opt", "root", "run", "sbin", "srv", "sys", "tmp", "usr", "var",
+            ],
             "/var/www/html": ["app", "backup_2024.zip", "config.php", "index.php", "uploads", ".env"],
             "/home/ubuntu": ["deploy.sh", "notes.txt", "vpn-export.ovpn", ".ssh", ".bash_history"],
             "/root": ["backup.sh", ".bashrc", ".profile"],
@@ -171,7 +174,7 @@ class AdaptiveDeceptionEngine:
         if normalized.startswith("grep "):
             return "DB_PASSWORD=Prod-Legacy-Only\nAWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\nDB_HOST=127.0.0.1\n"
         if normalized.startswith(("wget ", "curl ")):
-            predicted = self.predict_next(history + [normalized])
+            predicted = self.predict_next([*history, normalized])
             leak_hint = (
                 "\n# next likely command: {predicted}"
                 if self._shell_should_leak_predictions()
