@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 from sentinelmesh.models import AttackerProfile, AttackSession, ThreatIntelHit
+
+logger = logging.getLogger(__name__)
 
 
 class ReportGenerator:
@@ -81,7 +84,8 @@ class ReportGenerator:
                     pdf.showPage()
                     y = 800
             pdf.save()
-        except Exception:
+        except (ImportError, OSError, ValueError) as exc:
+            logger.warning("Falling back to text report for %s: %s", target, exc)
             target.write_text(
                 "\n".join(
                     [
@@ -105,7 +109,8 @@ class ReportGenerator:
         for file in files:
             try:
                 payload = json.loads(file.read_text(encoding="utf-8"))
-            except Exception:
+            except (json.JSONDecodeError, OSError) as exc:
+                logger.warning("Skipping unreadable report %s: %s", file, exc)
                 continue
             if after_iso and after_iso not in ("", None):
                 session_start = payload.get("session", {}).get("started_at")
