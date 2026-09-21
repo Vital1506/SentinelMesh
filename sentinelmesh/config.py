@@ -109,7 +109,7 @@ class Settings:
                 os.getenv("SENTINELMESH_MODEL_DIR", base_dir / "models")
             ).resolve(),
             database_path=database_path,
-            host_key_path=host_key_path
+            host_key_path=host_key_path,
             intel_cache_ttl_seconds=int(
                 os.getenv("SENTINELMESH_INTEL_CACHE_TTL_SECONDS", "1800")
             ),
