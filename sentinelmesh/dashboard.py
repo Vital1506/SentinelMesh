@@ -6,18 +6,12 @@ from typing import Any
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from fastapi.security import APIKeyHeader
-
 from sentinelmesh.config import Settings
 from sentinelmesh.storage import EventStore
 
 
 def create_app(store: EventStore, settings: Settings, templates_dir: Path) -> Any:
     app = FastAPI(title="SentinelMesh Telemetry")
-
-    token_header = APIKeyHeader(
-        name=settings.telemetry_token_header, auto_error=False
-    )
 
     def _require_token(request: Request) -> bool:
         if not settings.require_telemetry_auth:
@@ -62,7 +56,7 @@ def create_app(store: EventStore, settings: Settings, templates_dir: Path) -> An
         )
 
     @app.get("/readyz")
-    async def readyz() -> JSONResponse:
+    def readyz() -> JSONResponse:
         ready = all(
             [
                 settings.data_dir.exists(),
