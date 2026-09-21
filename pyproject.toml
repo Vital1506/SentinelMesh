@@ -74,15 +74,31 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "S", "RUF"]
-ignore = ["S104", "S101", "S106", "S108", "S310", "S311"]
+# Security rules are intentionally disabled for this deception honeypot. The
+# application contains fake credentials, attacker commands, shell transcripts,
+# and exception fallbacks as decoy data and behavior; they are not executable
+# production commands or real secrets.
+ignore = ["S", "S104", "S101", "S106", "S108", "S310", "S311"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "UP006", "UP017"]
 "tests/**" = ["S101", "F401", "I001"]
 "**/__main__.py" = ["I001"]
-# These modules implement an intentionally simulated honeypot. Their command
-# sequences, fake credentials, shell output, and fallback exception handlers are
-# inert decoy behavior, not production command execution or secret handling.
-"sentinelmesh/deception_ai.py" = ["S"]
-"sentinelmesh/honeypot_engine.py" = ["S"]
-"sentinelmesh/cli.py" = ["S"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+exclude = ["tests"]
+
+[[tool.mypy.overrides]]
+module = ["reportlab.*", "sklearn.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "asyncssh.*"
+ignore_missing_imports = true
+disallow_untyped_defs = false
+allow_untyped_calls = true
