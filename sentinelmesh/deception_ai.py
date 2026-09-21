@@ -191,7 +191,7 @@ class AdaptiveDeceptionEngine:
         if normalized in {"exit", "logout", "quit"}:
             return "logout"
 
-        predicted = self.predict_next(history + [normalized])
+        predicted = self.predict_next([*history, normalized])
         leak_hint = (
             f"\n# next likely command: {predicted}"
             if self._shell_should_leak_predictions()
