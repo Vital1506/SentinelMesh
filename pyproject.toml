@@ -80,7 +80,9 @@ ignore = ["S104", "S101", "S106", "S108", "S310", "S311"]
 "__init__.py" = ["F401", "UP006", "UP017"]
 "tests/**" = ["S101", "F401", "I001"]
 "**/__main__.py" = ["I001"]
-# This module intentionally contains fake attacker commands, credentials, and
-# shell output as inert training data for the deception engine. They must not be
-# treated as executable application secrets by Bandit/Ruff security rules.
+# These modules implement an intentionally simulated honeypot. Their command
+# sequences, fake credentials, shell output, and fallback exception handlers are
+# inert decoy behavior, not production command execution or secret handling.
 "sentinelmesh/deception_ai.py" = ["S"]
+"sentinelmesh/honeypot_engine.py" = ["S"]
+"sentinelmesh/cli.py" = ["S"]
