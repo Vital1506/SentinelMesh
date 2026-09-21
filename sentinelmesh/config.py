@@ -84,6 +84,10 @@ class Settings:
         if not is_lab_like and not telemetry_token:
             telemetry_token = _require_nonzero_env("SENTINELMESH_TELEMETRY_TOKEN")
 
+        data_dir = Path(os.getenv("SENTINELMESH_DATA_DIR", base_dir / "data")).resolve()
+        database_path = data_dir / "sentinelmesh.db"
+        host_key_path = data_dir / "ssh_host_key"
+
         settings = cls(
             listen_host=os.getenv("SENTINELMESH_LISTEN_HOST", "0.0.0.0"),
             http_port=int(os.getenv("SENTINELMESH_HTTP_PORT", "8080")),
@@ -97,17 +101,15 @@ class Settings:
             enable_smtp=_env_flag("SENTINELMESH_ENABLE_SMTP", True),
             enable_ssh=_env_flag("SENTINELMESH_ENABLE_SSH", True),
             base_dir=base_dir,
-            data_dir=Path(
-                os.getenv("SENTINELMESH_DATA_DIR", base_dir / "data")
-            ).resolve(),
+            data_dir=data_dir,
             reports_dir=Path(
                 os.getenv("SENTINELMESH_REPORTS_DIR", base_dir / "reports")
             ).resolve(),
             model_dir=Path(
                 os.getenv("SENTINELMESH_MODEL_DIR", base_dir / "models")
             ).resolve(),
-            database_path=None,  # set below so the constructor stays readable
-            host_key_path=None,  # set below so the constructor stays readable
+            database_path=database_path,
+            host_key_path=host_key_path
             intel_cache_ttl_seconds=int(
                 os.getenv("SENTINELMESH_INTEL_CACHE_TTL_SECONDS", "1800")
             ),
@@ -130,8 +132,6 @@ class Settings:
             log_level=os.getenv("SENTINELMESH_LOG_LEVEL") or None,
             require_telemetry_auth=not is_lab_like,
         )
-        settings.database_path = settings.data_dir / "sentinelmesh.db"
-        settings.host_key_path = settings.data_dir / "ssh_host_key"
         settings.ensure_directories()
         return settings
 
